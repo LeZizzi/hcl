@@ -6,7 +6,8 @@ credentials = file("service-account.json")
 }
 
 resource "google_compute_instance" "terra" {
-  name = "terra"
+  count = length(var.vm)
+  name = var.vm[count.index]
   machine_type = "f1-micro"
 
   boot_disk {
@@ -26,5 +27,4 @@ resource "google_compute_network" "terra_network" {
   name = "terraform-network"
   auto_create_subnetworks = "true"
 }
-
 
