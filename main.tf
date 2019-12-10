@@ -17,13 +17,13 @@ resource "google_compute_instance" "terra" {
 
   network_interface {
   # common nic
-    network = google_compute_network.vpc_network.self_link
+    network = google_compute_network.terra_network.self_link
     access_config {}
   }
 }
 
-resource "google_compute_network" "vpc_network" {
-  name = "terraform-network"
+resource "google_compute_network" "terra_network" {
+  name = "terranet"
   auto_create_subnetworks = "true"
 }
 
