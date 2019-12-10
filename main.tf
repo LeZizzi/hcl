@@ -9,6 +9,7 @@ resource "google_compute_instance" "terra" {
   count = length(var.vm)
   name = var.vm[count.index]
   machine_type = "f1-micro"
+  metadata_startup_script = "apt-get update && apt-get install -y nginx"
 
   boot_disk {
     initialize_params {
