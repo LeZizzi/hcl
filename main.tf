@@ -6,7 +6,7 @@ credentials = file("service-account.json")
 }
 
 resource "google_compute_instance" "terra" {
-  name = "terra"
+  name = "terra2"
   machine_type = "f1-micro"
 
   boot_disk {
@@ -17,13 +17,13 @@ resource "google_compute_instance" "terra" {
 
   network_interface {
   # common nic
-    network = google_compute_network.terra_network.self_link
+    network = google_compute_network.terra_network2.self_link
     access_config {}
   }
 }
 
-resource "google_compute_network" "terra_network" {
-  name = "terranet"
+resource "google_compute_network" "terra_network2" {
+  name = "terranet2"
   auto_create_subnetworks = "true"
 }
 
