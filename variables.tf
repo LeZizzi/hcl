@@ -16,3 +16,17 @@ variable "project" {
   type = string
   default = "terra"
 }
+
+
+variable "region" {
+  description = "region name"
+  type = string
+  default = "europe-west2-a"
+
+}
+
+variable "zone" {
+  description = "zone name"
+  type = string
+  default ="europe-west1-b"
+}

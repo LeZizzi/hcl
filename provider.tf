@@ -1,5 +1,5 @@
 provider "google" {
 credentials = file("service-account.json")
-  project     = "${var.project-name}"
+  project     = "${var.project}"
   region      = "${var.region}"
 }
