@@ -1,10 +1,3 @@
-provider "google" {
-credentials = file("service-account.json")
-  project = "terrabuild"
-  region = "europe-west2-a"
-  zone = "europe-west1-b"
-}
-
 resource "google_compute_instance" "terra" {
   count = length(var.vm)
   name = var.vm[count.index]

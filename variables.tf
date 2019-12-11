@@ -10,3 +10,9 @@ variable "fw" {
   default = ["22","443"]
   
 }
+
+variable "project" {
+  description = "project name"
+  type = string
+  default = "terra"
+}
