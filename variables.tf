@@ -12,9 +12,9 @@ variable "fw" {
 }
 
 variable "project" {
-  description = "project name"
+  description = "terrabuild"
   type = string
-  default = "terra"
+  default = "terrabuild"
 }
 
 
