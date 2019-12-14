@@ -1,6 +1,6 @@
 region          = "europe-west2"
-zone          = "europe-west2"
+zone          = "europe-west2-c"
 gcp_project     = "terrabuild"
 credentials     = "service-account.json"
-name            = "dev"
+//name            = "terrabuild"
 subnet_cidr = "10.10.0.0/24"
