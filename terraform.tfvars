@@ -1,4 +1,5 @@
 region          = "europe-west2"
+zone          = "europe-west2"
 gcp_project     = "terrabuild"
 credentials     = "service-account.json"
 name            = "dev"
