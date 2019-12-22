@@ -11,10 +11,6 @@ resource "google_compute_project_metadata_item" "ssh-keys" {
   key   = "ssh-keys"
   value = var.public_key
 }
- resource "google_compute_project_metadata_item" "citizenx" {
-   key = "ssh-keys"
-   value = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC5/tokirgrB62PuL05VrmGtDZ8jNI7d2eDzNtXJZIbhLsvKI8ILRuYrG77TbZm7UqcjootIFLBEj97yMrThb3V8ut3zsk31GQ8yhAepnijJA6QVx/tc0lmswzBNgVJLAAiia+dTvdHoAGV61oMAw5HlnppbiWQPio4XJkmPtgmskQwWlFh+cPCdvAMFDgIVwxZNbKKQvmfUE1L+NaUpqo2ln4DJxbsrAhwsUNsbkG+LyErfklF9yIPUzughTjKATz0umWAYUkIq9duW/9ks6geavd+9lu8CrLgoeAFjxb2P8IFkUPNK96xGkOBQt+PDSzraeHfsjuKJIunzBwa1Q3d citizenx"
- }
 
 resource "google_compute_instance" "terra" {
   count = length(var.vm)
@@ -46,14 +42,6 @@ resource "google_compute_network" "terra_network" {
 }
 
 // Adding VPC Networks to Project  MANAGEMENT
-resource "google_compute_subnetwork" "management-sub" {
-  name          = "management-subnet"
-  ip_cidr_range = "10.5.0.0/24"
-  network       = google_compute_network.management.self_link
-  region        = var.region
-}
-
-
 # Copyright 2016 Google Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -74,17 +62,13 @@ resource "google_compute_subnetwork" "management-sub" {
 
 //
 // Adding SSH Public Key in Project Meta Data
-resource "google_compute_project_metadata_item" "ssh-keys" {
-  key   = "ssh-keys"
-  value = "${var.public_key}"
-}
 
 // Adding VPC Networks to Project  MANAGEMENT
 resource "google_compute_subnetwork" "management-sub" {
   name          = "management-subnet"
   ip_cidr_range = "10.5.0.0/24"
-  network       = "${google_compute_network.management.self_link}"
-  region        = "${var.region}"
+  network       = google_compute_network.management.self_link
+  region        = var.region
 }
 
 resource "google_compute_network" "management" {
@@ -136,32 +120,15 @@ resource "google_compute_route" "web-route" {
   name                   = "web-route"
   dest_range             = "0.0.0.0/0"
   network                = google_compute_network.web.self_link
-  next_hop_instance      = element(google_compute_instance.firewall.*.name,count.index)
+  next_hop_instance      = element(google_compute_instance.*.name,count.index)
   next_hop_instance_zone = var.zone
   priority               = 100
 
-  depends_on = [google_compute_instance.firewall,
+  depends_on = [google_compute_instance,
     google_compute_network.web,
     google_compute_network.db,
     google_compute_network.untrust,
     google_compute_network.management,
-  ]
-}
-
-// Adding GCP ROUTE to DB Interface
-resource "google_compute_route" "db-route" {
-  name                   = "db-route"
-  dest_range             = "0.0.0.0/0"
-  network                = google_compute_network.db.self_link
-  next_hop_instance      = element(google_compute_instance.firewall.*.name,count.index)
-  next_hop_instance_zone = var.zone
-  priority               = 100
-
-  depends_on = ["google_compute_instance.firewall",
-    "google_compute_network.web",
-    "google_compute_network.db",
-    "google_compute_network.untrust",
-    "google_compute_network.management",
   ]
 }
 
@@ -219,56 +186,6 @@ resource "google_compute_firewall" "db-allow-outbound" {
   source_ranges = ["0.0.0.0/0"]
 }
 
-// Create a new Palo Alto Networks NGFW VM-Series GCE instance
-resource "google_compute_instance" "firewall" {
-  name                      = var.firewall_name
-  machine_type              = var.machine_type_fw
-  zone                      = var.zone
-  min_cpu_platform          = var.machine_cpu_fw
-  can_ip_forward            = true
-  allow_stopping_for_update = true
-  count                     = 1
-
-  // Adding METADATA Key Value pairs to VM-Series GCE instance
-  metadata {
-    vmseries-bootstrap-gce-storagebucket = var.bootstrap_bucket_fw
-    serial-port-enable                   = true
-
-    # sshKeys                              = "${var.public_key}"
-  }
-
-  service_account {
-    scopes = var.scopes_fw
-  }
-
-  network_interface {
-    subnetwork    = google_compute_subnetwork.management-sub.self_link
-    access_config = {}
-  }
-
-  network_interface {
-    subnetwork    = google_compute_subnetwork.untrust-sub.self_link
-    address       = "10.5.1.4"
-    access_config = {}
-  }
-
-  network_interface {
-    subnetwork = google_compute_subnetwork.web-trust-sub.self_link
-    address    = "10.5.2.4"
-  }
-
-  network_interface {
-    subnetwork = google_compute_subnetwork.db-trust-sub.self_link
-    address    = "10.5.3.4"
-  }
-
-  boot_disk {
-    initialize_params {
-      image = var.image_fw
-    }
-  }
-}
-
 // Create a new DBSERVER instance
 resource "google_compute_instance" "dbserver" {
   name                      = var.db_server_name
@@ -307,57 +224,4 @@ resource "google_compute_instance" "dbserver" {
     "google_compute_network.untrust",
     "google_compute_network.management",
   ]
-}
-
-// Create a new WEB SERVER instance
-resource "google_compute_instance" "webserver" {
-  name                      = var.web_server_name
-  machine_type              = var.machine_type_web
-  zone                      = var.zone
-  can_ip_forward            = true
-  allow_stopping_for_update = true
-  count                     = 1
-
-  // Adding METADATA Key Value pairs to WEB SERVER
-  metadata {
-    startup-script-url = var.web_startup_script_bucket
-    serial-port-enable = true
-
-    # sshKeys                              = "${var.public_key}"
-  }
-
-  service_account {
-    scopes = var.scopes_web
-  }
-
-  network_interface {
-    subnetwork = google_compute_subnetwork.web-trust-sub.self_link
-    address    = var.ip_web
-  }
-
-  boot_disk {
-    initialize_params {
-      image = var.image_web
-    }
-  }
-
-  depends_on = ["google_compute_instance.firewall",
-    "google_compute_network.web",
-    "google_compute_network.db",
-    "google_compute_network.untrust",
-    "google_compute_network.management",
-  ]
-}
-
-// Output
-output "firewall-web-trust-ip" {
-  value = google_compute_instance.firewall.network_interface[2].address
-}
-
-output "firewall-db-trust-ip" {
-  value = google_compute_instance.firewall.network_interface[3].address
-}
-
-output "firewall-name" {
-  value = google_compute_instance.firewall.*.name
 }
