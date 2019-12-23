@@ -115,23 +115,6 @@ resource "google_compute_network" "db" {
   auto_create_subnetworks = "false"
 }
 
-// Adding GCP ROUTE to WEB Interface
-resource "google_compute_route" "web-route" {
-  name                   = "web-route"
-  dest_range             = "0.0.0.0/0"
-  network                = google_compute_network.web.self_link
-  next_hop_instance      = element(google_compute_instance.*.name,count.index)
-  next_hop_instance_zone = var.zone
-  priority               = 100
-
-  depends_on = [google_compute_instance,
-    google_compute_network.web,
-    google_compute_network.db,
-    google_compute_network.untrust,
-    google_compute_network.management,
-  ]
-}
-
 // Adding GCP Firewall Rules for MANGEMENT
 resource "google_compute_firewall" "allow-mgmt" {
   name    = "allow-mgmt"
@@ -196,12 +179,6 @@ resource "google_compute_instance" "dbserver" {
   count                     = 1
 
   // Adding METADATA Key Value pairs to DB-SERVER
-  metadata {
-    startup-script-url = var.db_startup_script_bucket
-    serial-port-enable = true
-
-    # sshKeys                              = "${var.public_key}"
-  }
 
   service_account {
     scopes = var.scopes_db
