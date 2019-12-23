@@ -23,7 +23,7 @@ variable "firewall_name" {
 }
 
 variable "image_fw" {
- # default = "Your_VM_Series_Image"
+  default = "debian-9"
 
   # /Cloud Launcher API Calls to images/
   # default = "https://www.googleapis.com/compute/v1/projects/paloaltonetworksgcp-public/global/images/vmseries-byol-810"
