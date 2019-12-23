@@ -1,9 +1,8 @@
 ---
-- name: Install Git, MySQL, Nginx, and projects
+- name: Install Git
   hosts: all
 
   roles:
     - git
-    - mysql
     - nginx
-    - growlerfriday
+
