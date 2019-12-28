@@ -1,0 +1,18 @@
+{
+    "builders": [
+      {
+        "type": "googlecompute",
+        "project_id": "{{user `project_id`}}",
+        "source_image_family": "debian-9",
+        "zone": "us-central1-a",
+        "image_description": "packer-image",
+        "ssh_username": "root",
+        "account_file": "secrets.json"
+      }
+    ],
+ "provisioners": [{
+      "type": "ansible",
+      "playbook_file": "../ansible/httpd.yml"
+    }]
+  }
+}
