@@ -29,5 +29,5 @@ variable "project_name" {
 
 variable "ssh_user" {
   description = "SSH user name to connect to your instance."
-  default     = "toor"
+  default     = "citizenx@localhost.localdomain"
 }
