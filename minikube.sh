@@ -18,7 +18,8 @@ fi
 
 if ! [ -x "$(command -v minikube)" ]; then
   echo "Installing minikube..."
-  curl -Lo minikube https://storage.googleapis.com/minikube/releases/v0.28.2/minikube-linux-amd64
+  curl -Lo minikube https://github.com/kubernetes/minikube/releases/download/v1.6.2/minikube-linux-amd64
+  
   chmod +x minikube
   sudo cp minikube /usr/local/bin/
 
